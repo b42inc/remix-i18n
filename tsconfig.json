@@ -7,10 +7,7 @@
     "outDir": "dist",
     "module": "commonjs",
     "target": "es6",
-    "declaration": true,
-    "types": [
-      ".remix-lang"
-    ]
+    "declaration": true
   },
   "include": ["src"]
 }

@@ -1,19 +1,19 @@
 import { useI18n } from './useI18n'
 import { useCallback } from 'react'
 
-type Keys = keyof RemixI18nTranslations
+export type RemixI18nTranslationKeys = keyof RemixI18nTranslations
 
-type Args = RemixI18nTranslations[Keys]
+export type RemixI18nTranslationArgs = RemixI18nTranslations[RemixI18nTranslationKeys]
 
-type NoRecordKeys = {
-  [K in Keys]: RemixI18nTranslations[K] extends Record<string, any> ? never : K
-}[Keys]
+export type RemixI18nTranslationTextKeys = {
+  [K in RemixI18nTranslationKeys]: RemixI18nTranslations[K] extends Record<string, any> ? never : K
+}[RemixI18nTranslationKeys]
 
-type RecordKeys = Exclude<Keys, NoRecordKeys>
+export type RemixI18nTranslationHasArgsKeys = Exclude<RemixI18nTranslationKeys, RemixI18nTranslationTextKeys>
 
 export const useI18nTranslate = () => {
   const { langFile } = useI18n()
-  const translate = useCallback((key: Keys, args?: Args): string => {
+  const translate = useCallback((key: RemixI18nTranslationKeys, args?: RemixI18nTranslationArgs): string => {
     const template = langFile[key] || ''
 
     if (!args) {
@@ -25,8 +25,8 @@ export const useI18nTranslate = () => {
       template
     )
   }, [langFile]) as {
-    (key: NoRecordKeys): string
-    <K extends RecordKeys>(key: K, args: RemixI18nTranslations[K]): string
+    (key: RemixI18nTranslationTextKeys): string
+    (key: RemixI18nTranslationHasArgsKeys, args: RemixI18nTranslations[RemixI18nTranslationHasArgsKeys]): string
   }
 
   return translate

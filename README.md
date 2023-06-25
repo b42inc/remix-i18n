@@ -38,17 +38,40 @@ This process should be repeated each time the language files are updated.
 $ yarn remix-i18n [--default en --srcDir app/lang --destDir public/lang]
 ```
 
+### Update `remix.env.d.ts`
+```typescript
+/// <reference types=".remix-lang/@types" />
+```
+
 ### Setting in `app/entry.server.ts`:
 
 ```typescript
+const url = new URL(request.url)
 const locales = ['en', 'ja'] as const
-const lang = new Language(locales, 'en')
+const lang = new Language(
+  locales,
+  'en',
+  `${url.origin}/lang`
+)
 const defaultLocale = lang.getKeyFromServer(request)
-await lang.fetch(defaultLocale)
-return (
+await lang.fetchTranslation(defaultLocale)
+const markup = renderToString(
   <I18nProvider lang={lang} locales={locales} defaultLocale={defaultLocale}>
     <RemixServer context={remixContext} url={request.url} />
   </I18nProvider>
+)
+responseHeaders.set('Content-Type', 'text/html')
+
+return new Response(
+  '<!DOCTYPE html>' +
+    markup.replace(
+      '</head>',
+      `<script>${lang.toEmbbededString()}</script></head>`
+    ),
+  {
+    status: responseStatusCode,
+    headers: responseHeaders,
+  }
 )
 ```
 
@@ -59,7 +82,7 @@ const hydrate = async () => {
   const locales = ['en', 'ja'] as const
   const lang = new Language(locales, 'en')
   const defaultLocale = lang.getKeyFromClient()
-  await lang.fetch(defaultLocale)
+  await lang.fetchTranslation(defaultLocale)
   startTransition(() => {
     hydrateRoot(
       document,
@@ -77,7 +100,6 @@ const hydrate = async () => {
 const { currentLocale, setCurrentLocale, locales } = useI18n()
 const t = useI18nTranslate()
 t('greeting', { name: 'Akari'})
-
 ```
 
 ## Customization

@@ -1,3 +1,4 @@
+/// <reference types="react" />
 export type I18nContextProps<T extends readonly string[]> = {
     currentLocale: T[number];
     setCurrentLocale: (locale: T[number]) => void;

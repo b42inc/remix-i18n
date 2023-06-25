@@ -1,4 +1,4 @@
-import { useState, FC, PropsWithChildren, useEffect } from 'react'
+import { useState, PropsWithChildren, useEffect, ReactNode } from 'react'
 import { I18nContext } from '../context/I18n'
 import { Language } from '../lib/Language'
 
@@ -8,7 +8,7 @@ type Props<T extends readonly string[]> = {
   lang: Language<T>
 }
 
-export const I18nProvider: FC  = <T extends readonly string[]>({ children, locales, lang, defaultLocale }: PropsWithChildren<Props<T>>) => {
+export function I18nProvider<T extends readonly string[]>({ children, locales, lang, defaultLocale }: PropsWithChildren<Props<T>>): ReactNode {
   const [currentLocale, setCurrentLocale] = useState(defaultLocale)
   const [langFile, setLangfile] = useState(lang.getTranslation(defaultLocale))
 

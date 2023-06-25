@@ -3,6 +3,7 @@ export declare class Language<T extends readonly string[]> {
     private readonly allows;
     private readonly fallback;
     private readonly langDir;
+    private isBrowser;
     constructor(allows: T, fallback: T[number], langDir?: string);
     private _getKey;
     getKeyFromServer(request: Request): T[number];
@@ -12,5 +13,6 @@ export declare class Language<T extends readonly string[]> {
     hasTranslation(lang: T[number]): boolean;
     getTranslation(lang: T[number]): LangJSON;
     fetchTranslation(lang: T[number]): Promise<LangJSON>;
+    toEmbbededString(): string;
 }
 export {};
