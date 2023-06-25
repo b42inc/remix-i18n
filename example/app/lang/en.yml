@@ -1,0 +1,7 @@
+"@key": "en"
+"@label": "English"
+greeting:
+  text: "Hello, {name}!"
+  args:
+    name: string
+title: "English page"

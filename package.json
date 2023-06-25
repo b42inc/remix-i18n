@@ -1,0 +1,37 @@
+{
+  "name": "@b42inc/remix-i18n",
+  "version": "0.0.1",
+  "description": "Internationalization for Remix",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:b42inc/remix-i18n.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "remix-i18n": "./bin/cli.mjs"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "publish": "npm run build && npm publish --access public"
+  },
+  "author": "Bushitus Inc.",
+  "license": "MIT",
+  "peerDependencies": {
+    "@remix-run/cloudflare": "latest",
+    "@remix-run/react": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.14",
+    "js-yaml": "^4.1.0",
+    "minimist": "^1.2.8",
+    "typescript": "^5.1.3"
+  },
+  "dependencies": {
+    "@remix-run/cloudflare": "^1.17.1",
+    "@remix-run/react": "^1.17.1",
+    "react": "^18.2.0"
+  }
+}

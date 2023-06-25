@@ -1,0 +1,7 @@
+"@key": "ja"
+"@label": "日本語"
+greeting:
+  text: "こんにちは、{name}さん！"
+  args:
+    name: string
+title: "日本語のページ"
