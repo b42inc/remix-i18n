@@ -48,15 +48,15 @@ $ yarn remix-i18n [--default en --srcDir app/lang --destDir public/lang]
 ```typescript
 const url = new URL(request.url)
 const locales = ['en', 'ja'] as const
-const lang = new Language(
+const translation = new Translation(
   locales,
   'en',
   `${url.origin}/lang`
 )
-const defaultLocale = lang.getKeyFromServer(request)
-await lang.fetchTranslation(defaultLocale)
+const defaultLocale = translation.getFirstLangFromServer(request)
+await translation.fetch(defaultLocale)
 const markup = renderToString(
-  <I18nProvider lang={lang} locales={locales} defaultLocale={defaultLocale}>
+  <I18nProvider translation={translation} locales={locales} defaultLocale={defaultLocale}>
     <RemixServer context={remixContext} url={request.url} />
   </I18nProvider>
 )
@@ -66,7 +66,7 @@ return new Response(
   '<!DOCTYPE html>' +
     markup.replace(
       '</head>',
-      `<script>${lang.toEmbbededString()}</script></head>`
+      `<script>${translation.toEmbbededString()}</script></head>`
     ),
   {
     status: responseStatusCode,
@@ -80,18 +80,31 @@ return new Response(
 ```typescript
 const hydrate = async () => {
   const locales = ['en', 'ja'] as const
-  const lang = new Language(locales, 'en')
-  const defaultLocale = lang.getKeyFromClient()
-  await lang.fetchTranslation(defaultLocale)
+  const translation = new Translation(locales, 'en')
+  const defaultLocale = translation.getFirstLangFromClient()
+  await translation.fetch(defaultLocale)
   startTransition(() => {
     hydrateRoot(
       document,
-      <I18nProvider lang={lang} locales={locales} defaultLocale={defaultLocale}>
+      <I18nProvider translation={translation} locales={locales} defaultLocale={defaultLocale}>
         <RemixBrowser />
       </I18nProvider>
     )
   })
 }
+```
+
+### Setting in `app/root.tsx`:
+
+```tsx
+<body>
+  <Outlet />
+  {/* ↓ add */}
+  <I18nRouter enableLanguageChange enableLanguageRoute enforceLanguageRoute />
+  <ScrollRestoration />
+  <Scripts />
+  <LiveReload />
+</body>
 ```
 
 ### Example of usage:

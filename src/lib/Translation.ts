@@ -6,7 +6,7 @@ const I18N_BROWSER_EMBEDED_KEY = '__REMIX_I18N__'
 
 const LANG_CACHE: Record<string, LangJSON> = {}
 
-export class Language<T extends readonly string[]> {
+export class Translation<T extends readonly string[]> {
   private isBrowser = typeof window !== 'undefined'
 
   constructor(
@@ -20,9 +20,10 @@ export class Language<T extends readonly string[]> {
     }
   }
 
-  private _getKey(langs: string[]): T[number] {
-    for (let i = 0; i < langs.length; i++) {
-      const lang = langs[i]
+  getFirstMatchLang(candidates: string[]): T[number] {
+    const uniqs = Array.from(new Set(candidates))
+    for (let i = 0; i < uniqs.length; i++) {
+      const lang = uniqs[i]
       if (lang) {
         const matched = this.allows.find((a) => a.startsWith(lang) || lang.startsWith(a))
         if (matched) {
@@ -34,31 +35,32 @@ export class Language<T extends readonly string[]> {
     return this.fallback
   }
 
-  getKeyFromServer(request: Request) {
+  getFirstLangFromServer(request: Request) {
     const url = new URL(request.url)
     const cookie = request.headers.get('cookie')
     const cookieLang = cookie?.split(';').find((c) => c.trim().startsWith(`${I18N_COOKIE_NAME}=`))
-    return this._getKey(Array.from(new Set([
+    return this.getFirstMatchLang([
       url.pathname.split('/')[1],
       cookieLang?.split('=')[1],
       ...request.headers.get('Accept-Language').split(','),
-    ])))
+    ])
   }
 
-  getKeyFromClient() {
+  getFirstLangFromClient() {
     const cookie = document.cookie
     const cookieLang = cookie.split(';').find((c) => c.trim().startsWith(`${I18N_COOKIE_NAME}=`))
-    return this._getKey(Array.from(new Set([
+    return this.getFirstMatchLang([
       location.pathname.split('/')[1],
       cookieLang?.split('=')[1],
-    ])))
+      ...navigator.languages,
+    ])
   }
 
-  putKeyFromServer(lang: T[number], response: Response) {
+  putLangFromServer(lang: T[number], response: Response) {
     response.headers.set('Set-Cookie', `${I18N_COOKIE_NAME}=${lang}; Path=/`)
   }
 
-  putKeyFromClient(lang: T[number]) {
+  putLangFromClient(lang: T[number]) {
     document.cookie = `${I18N_COOKIE_NAME}=${lang}; Path=/`
   }
 
@@ -70,7 +72,7 @@ export class Language<T extends readonly string[]> {
     return LANG_CACHE[lang]
   }
 
-  async fetchTranslation(lang: T[number]) {
+  async fetch(lang: T[number]) {
     if (this.hasTranslation(lang)) {
       return LANG_CACHE[lang]
     }

@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Language = void 0;
+exports.Translation = void 0;
 const I18N_COOKIE_NAME = 'i18n-locale';
 const I18N_BROWSER_EMBEDED_KEY = '__REMIX_I18N__';
 const LANG_CACHE = {};
-class Language {
+class Translation {
     constructor(allows, fallback, langDir = '/lang') {
         this.allows = allows;
         this.fallback = fallback;
@@ -24,9 +24,10 @@ class Language {
             LANG_CACHE[defaultKey] = window[I18N_BROWSER_EMBEDED_KEY][defaultKey];
         }
     }
-    _getKey(langs) {
-        for (let i = 0; i < langs.length; i++) {
-            const lang = langs[i];
+    getFirstMatchLang(candidates) {
+        const uniqs = Array.from(new Set(candidates));
+        for (let i = 0; i < uniqs.length; i++) {
+            const lang = uniqs[i];
             if (lang) {
                 const matched = this.allows.find((a) => a.startsWith(lang) || lang.startsWith(a));
                 if (matched) {
@@ -36,28 +37,29 @@ class Language {
         }
         return this.fallback;
     }
-    getKeyFromServer(request) {
+    getFirstLangFromServer(request) {
         const url = new URL(request.url);
         const cookie = request.headers.get('cookie');
         const cookieLang = cookie === null || cookie === void 0 ? void 0 : cookie.split(';').find((c) => c.trim().startsWith(`${I18N_COOKIE_NAME}=`));
-        return this._getKey(Array.from(new Set([
+        return this.getFirstMatchLang([
             url.pathname.split('/')[1],
             cookieLang === null || cookieLang === void 0 ? void 0 : cookieLang.split('=')[1],
             ...request.headers.get('Accept-Language').split(','),
-        ])));
+        ]);
     }
-    getKeyFromClient() {
+    getFirstLangFromClient() {
         const cookie = document.cookie;
         const cookieLang = cookie.split(';').find((c) => c.trim().startsWith(`${I18N_COOKIE_NAME}=`));
-        return this._getKey(Array.from(new Set([
+        return this.getFirstMatchLang([
             location.pathname.split('/')[1],
             cookieLang === null || cookieLang === void 0 ? void 0 : cookieLang.split('=')[1],
-        ])));
+            ...navigator.languages,
+        ]);
     }
-    putKeyFromServer(lang, response) {
+    putLangFromServer(lang, response) {
         response.headers.set('Set-Cookie', `${I18N_COOKIE_NAME}=${lang}; Path=/`);
     }
-    putKeyFromClient(lang) {
+    putLangFromClient(lang) {
         document.cookie = `${I18N_COOKIE_NAME}=${lang}; Path=/`;
     }
     hasTranslation(lang) {
@@ -66,7 +68,7 @@ class Language {
     getTranslation(lang) {
         return LANG_CACHE[lang];
     }
-    fetchTranslation(lang) {
+    fetch(lang) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.hasTranslation(lang)) {
                 return LANG_CACHE[lang];
@@ -81,4 +83,4 @@ class Language {
         return `;window.${I18N_BROWSER_EMBEDED_KEY} = ${JSON.stringify(LANG_CACHE)};`;
     }
 }
-exports.Language = Language;
+exports.Translation = Translation;

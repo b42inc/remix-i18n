@@ -1,9 +1,9 @@
 import { PropsWithChildren, ReactNode } from 'react';
-import { Language } from '../lib/Language';
+import { Translation } from '../lib/Translation';
 type Props<T extends readonly string[]> = {
     locales: T;
     defaultLocale: T[number];
-    lang: Language<T>;
+    translation: Translation<T>;
 };
-export declare function I18nProvider<T extends readonly string[]>({ children, locales, lang, defaultLocale }: PropsWithChildren<Props<T>>): ReactNode;
+export declare function I18nProvider<T extends readonly string[]>({ children, locales, translation, defaultLocale, }: PropsWithChildren<Props<T>>): ReactNode;
 export {};
