@@ -97,14 +97,10 @@ const hydrate = async () => {
 ### Setting in `app/root.tsx`:
 
 ```tsx
-<body>
-  <Outlet />
+<head>
   {/* ↓ add */}
   <I18nRouter enableLanguageChange enableLanguageRoute enforceLanguageRoute />
-  <ScrollRestoration />
-  <Scripts />
-  <LiveReload />
-</body>
+</head>
 ```
 
 ### Example of usage:
@@ -115,11 +111,13 @@ const t = useI18nTranslate()
 t('greeting', { name: 'Akari'})
 ```
 
-## Customization
-Currently, there is no customization or extensibility.
+## Route File Naming
+If you set `enableLanguageRoute` to `true`, please name all your route files for i18n support either as `($lang)._index.tsx` or `$lang._index.tsx`.
+
+When using `($lang)` as optional, no $lang will be used for the `defaultLocale`, but it will be included for other languages.
 
 ## TODO
-- Redirect to first language on first access
+- How to get origin in `I18nRouter.tsx`
 
 ## License and Contribution
 This is fully open-source. Contributors are welcome!

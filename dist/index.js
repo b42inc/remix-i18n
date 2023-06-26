@@ -18,5 +18,6 @@ __exportStar(require("./hooks/useI18n"), exports);
 __exportStar(require("./hooks/useI18nTranslate"), exports);
 __exportStar(require("./context/I18n"), exports);
 __exportStar(require("./components/I18nProvider"), exports);
+__exportStar(require("./components/I18nRouter"), exports);
 __exportStar(require("./components/Link"), exports);
 __exportStar(require("./lib/Translation"), exports);

@@ -4,5 +4,5 @@ type Props = {
     enableLanguageRoute?: boolean;
     enforceLanguageRoute?: boolean;
 };
-declare const I18nRouter: FC<Props>;
-export default I18nRouter;
+export declare const I18nRouter: FC<Props>;
+export {};

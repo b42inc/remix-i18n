@@ -11,7 +11,7 @@ type Props = {
   enforceLanguageRoute?: boolean,
 }
 
-const I18nRouter: FC<Props> = ({
+export const I18nRouter: FC<Props> = ({
   enableLanguageChange,
   enableLanguageRoute,
   enforceLanguageRoute,
@@ -19,7 +19,9 @@ const I18nRouter: FC<Props> = ({
   const { lang: langParam } = useParams()
   const currentLocation = useLocation()
   const navigate = useNavigate()
-  const { translation, currentLocale, setCurrentLocale, defaultLocale } = useI18n()
+  // TODO: How to get origin.
+  const origin = 'https://example.com'
+  const { translation, currentLocale, setCurrentLocale, defaultLocale, locales } = useI18n()
   
   useEffect(() => {
     function onLanguageChange() {
@@ -75,7 +77,23 @@ const I18nRouter: FC<Props> = ({
     navigate,
   ])
 
-  return null
-}
+  if (!enableLanguageRoute) {
+    return null
+  }
 
-export default I18nRouter
+  return (
+    <>
+      {locales.map((locale) => (
+        <link
+          rel="alternate"
+          href={
+            locale === defaultLocale && !enforceLanguageRoute
+              ? `${origin}`
+              : `${origin}/${locale}/`
+          }
+          hrefLang={locale}
+        />
+      ))}
+    </>
+  )
+}
