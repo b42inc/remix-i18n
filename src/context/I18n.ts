@@ -10,4 +10,4 @@ export type I18nContextProps<T extends readonly string[]> = {
   translation: Translation<T>
 }
 
-export const I18nContext = createContext<I18nContextProps<[]>>(null)
+export const I18nContext = createContext<I18nContextProps<string[]>>(null as any)

@@ -8,4 +8,4 @@ export type I18nContextProps<T extends readonly string[]> = {
     langFile: Record<string, string>;
     translation: Translation<T>;
 };
-export declare const I18nContext: import("react").Context<I18nContextProps<[]>>;
+export declare const I18nContext: import("react").Context<I18nContextProps<string[]>>;

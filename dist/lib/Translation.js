@@ -14,14 +14,20 @@ const I18N_COOKIE_NAME = 'i18n-locale';
 const I18N_BROWSER_EMBEDED_KEY = '__REMIX_I18N__';
 const LANG_CACHE = {};
 class Translation {
-    constructor(allows, fallback, langDir = '/lang') {
-        this.allows = allows;
-        this.fallback = fallback;
-        this.langDir = langDir;
+    constructor(props) {
+        var _a, _b;
         this.isBrowser = typeof window !== 'undefined';
-        if (this.isBrowser && window[I18N_BROWSER_EMBEDED_KEY]) {
-            const defaultKey = Object.keys(window[I18N_BROWSER_EMBEDED_KEY])[0];
-            LANG_CACHE[defaultKey] = window[I18N_BROWSER_EMBEDED_KEY][defaultKey];
+        this.allows = props.allows;
+        this.fallback = props.fallback;
+        this.langDir = (_a = props.langDir) !== null && _a !== void 0 ? _a : '/lang';
+        this.useCookie = (_b = props.useCookie) !== null && _b !== void 0 ? _b : true;
+        if (this.isBrowser &&
+            I18N_BROWSER_EMBEDED_KEY in window &&
+            typeof window[I18N_BROWSER_EMBEDED_KEY] === 'object' &&
+            window[I18N_BROWSER_EMBEDED_KEY]) {
+            Object.entries(window[I18N_BROWSER_EMBEDED_KEY]).forEach(([key, value]) => {
+                LANG_CACHE[key] = value;
+            });
         }
     }
     getFirstMatchLang(candidates) {
@@ -37,41 +43,49 @@ class Translation {
         }
         return this.fallback;
     }
+    _getLangInCookie(cookie) {
+        if (!this.useCookie || !cookie) {
+            return '';
+        }
+        const cookieLang = cookie.split(';').find((c) => c.trim().startsWith(`${I18N_COOKIE_NAME}=`));
+        return (cookieLang === null || cookieLang === void 0 ? void 0 : cookieLang.split('=')[1].trim()) || '';
+    }
     getFirstLangFromServer(request) {
-        const url = new URL(request.url);
-        const cookie = request.headers.get('cookie');
-        const cookieLang = cookie === null || cookie === void 0 ? void 0 : cookie.split(';').find((c) => c.trim().startsWith(`${I18N_COOKIE_NAME}=`));
+        var _a, _b;
         return this.getFirstMatchLang([
-            url.pathname.split('/')[1],
-            cookieLang === null || cookieLang === void 0 ? void 0 : cookieLang.split('=')[1],
-            ...request.headers.get('Accept-Language').split(','),
+            (new URL(request.url)).pathname.split('/')[1],
+            this._getLangInCookie(request.headers.get('cookie')),
+            ...((_b = (_a = request.headers.get('Accept-Language')) === null || _a === void 0 ? void 0 : _a.split(',')) !== null && _b !== void 0 ? _b : []),
         ]);
     }
     getFirstLangFromClient() {
-        const cookie = document.cookie;
-        const cookieLang = cookie.split(';').find((c) => c.trim().startsWith(`${I18N_COOKIE_NAME}=`));
         return this.getFirstMatchLang([
             location.pathname.split('/')[1],
-            cookieLang === null || cookieLang === void 0 ? void 0 : cookieLang.split('=')[1],
+            this._getLangInCookie(document.cookie),
             ...navigator.languages,
         ]);
     }
     putLangFromServer(lang, response) {
-        response.headers.set('Set-Cookie', `${I18N_COOKIE_NAME}=${lang}; Path=/`);
+        if (this.useCookie) {
+            response.headers.set('Set-Cookie', `${I18N_COOKIE_NAME}=${lang}; Path=/`);
+        }
     }
     putLangFromClient(lang) {
-        document.cookie = `${I18N_COOKIE_NAME}=${lang}; Path=/`;
-    }
-    hasTranslation(lang) {
-        return !!LANG_CACHE[lang];
+        if (this.useCookie) {
+            document.cookie = `${I18N_COOKIE_NAME}=${lang}; Path=/`;
+        }
     }
     getTranslation(lang) {
         return LANG_CACHE[lang];
     }
+    hasTranslation(lang) {
+        return !!this.getTranslation(lang);
+    }
     fetch(lang) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.hasTranslation(lang)) {
-                return LANG_CACHE[lang];
+            const exist = this.getTranslation(lang);
+            if (exist) {
+                return exist;
             }
             const response = yield fetch(`${this.langDir}/${lang}.json`);
             const json = yield response.json();

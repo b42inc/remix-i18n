@@ -48,11 +48,11 @@ $ yarn remix-i18n [--default en --srcDir app/lang --destDir public/lang]
 ```typescript
 const url = new URL(request.url)
 const locales = ['en', 'ja'] as const
-const translation = new Translation(
-  locales,
-  'en',
-  `${url.origin}/lang`
-)
+const translation = new Translation({
+  allows: locales,
+  fallback: 'en',
+  langDir: `${url.origin}/lang`
+})
 const defaultLocale = translation.getFirstLangFromServer(request)
 await translation.fetch(defaultLocale)
 const markup = renderToString(
@@ -80,7 +80,7 @@ return new Response(
 ```typescript
 const hydrate = async () => {
   const locales = ['en', 'ja'] as const
-  const translation = new Translation(locales, 'en')
+  const translation = new Translation({ allows: locales, fallback: 'en' })
   const defaultLocale = translation.getFirstLangFromClient()
   await translation.fetch(defaultLocale)
   startTransition(() => {
